@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Home Control Panel</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database.js"></script>
+  <style>
+    body { font-family: Arial; background: #f2f2f2; padding: 2rem; }
+    .device { margin: 1rem 0; }
+    button { padding: 0.5rem 1rem; font-size: 16px; }
+    .status { display: inline-block; margin-left: 1rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1>🏠 Smart Home Dashboard</h1>
+
+  <div class="device">
+    Light:
+    <button onclick="toggleDevice('light')">Toggle</button>
+    <span id="light-status" class="status">...</span>
+  </div>
+
+  <div class="device">
+    Fan:
+    <button onclick="toggleDevice('fan')">Toggle</button>
+    <span id="fan-status" class="status">...</span>
+  </div>
+
+  <div class="device">
+    AC:
+    <button onclick="toggleDevice('ac')">Toggle</button>
+    <span id="ac-status" class="status">...</span>
+  </div>
+
+  <div class="device">
+    Door Lock:
+    <button onclick="toggleDevice('door')">Toggle</button>
+    <span id="door-status" class="status">...</span>
+  </div>
+
+  <script>
+  const firebaseConfig = {
+  apiKey: "AIzaSyAYRxR6l4Brs3D9KTPbg47XGL2ZSSA4bJY",
+  authDomain: "smart-home-control-b94a8.firebaseapp.com",
+  projectId: "smart-home-control-b94a8",
+  storageBucket: "smart-home-control-b94a8.firebasestorage.app",
+  messagingSenderId: "840651634547",
+  appId: "1:840651634547:web:c85d68f71ac4925cec7706",
+  measurementId: "G-JW5GCVCESK"
+};
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const devices = ['light', 'fan', 'ac', 'door'];
+
+    devices.forEach(device => {
+      db.ref('devices/' + device).on('value', snapshot => {
+        const value = snapshot.val();
+        document.getElementById(device + '-status').innerText = value;
+      });
+    });
+
+    function toggleDevice(device) {
+      const ref = db.ref('devices/' + device);
+      ref.once('value').then(snapshot => {
+        const current = snapshot.val();
+        let next;
+        if (device === 'door') {
+          next = current === 'locked' ? 'unlocked' : 'locked';
+        } else {
+          next = current === 'on' ? 'off' : 'on';
+        }
+        ref.set(next);
+      });
+    }
+  </script>
+
+</body>
+</html>
